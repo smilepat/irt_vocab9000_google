@@ -1,6 +1,6 @@
 "use client"
 
-import LexileChart from "../lexile-chart"
+import LexileChart from "@/components/lexile-chart"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
