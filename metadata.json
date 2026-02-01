@@ -1,0 +1,5 @@
+{
+  "name": "IRT-vocab9000",
+  "description": "An advanced vocabulary quiz application that generates questions across 10 specialized categories (H-Q) with a dynamic difficulty ranking from 1 to 9000, featuring visual 'Ups and Downs' difficulty tracking.",
+  "requestFramePermissions": []
+}
