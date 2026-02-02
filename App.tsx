@@ -36,6 +36,14 @@ const DEFAULT_MODELS = [
   "gemini-2.0-flash-exp"
 ];
 
+const GOAL_OPTIONS = [
+  { rank: 800, label: "초등 어휘 (Elementary)", desc: "800단어 마스터" },
+  { rank: 2000, label: "중등 공통 (Middle School)", desc: "누적 2000단어 마스터" },
+  { rank: 3000, label: "고교 어휘 (High School)", desc: "누적 3000단어 마스터" },
+  { rank: 5000, label: "수능 어휘 (CSAT)", desc: "누적 5000단어 마스터" },
+  { rank: 9000, label: "대학 어휘 (University)", desc: "누적 9000단어 마스터" },
+];
+
 const App: React.FC = () => {
   const [currentRank, setCurrentRank] = useState<number>(1000);
   const [history, setHistory] = useState<QuizQuestion[]>([]);
@@ -66,6 +74,10 @@ const App: React.FC = () => {
   // API Key Test State
   const [isTestingKey, setIsTestingKey] = useState<boolean>(false);
   const [keyTestResult, setKeyTestResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  // Goal State
+  const [showGoalSelection, setShowGoalSelection] = useState<boolean>(false);
+  const [targetGoal, setTargetGoal] = useState<number | null>(null);
 
   const handleTestKey = async () => {
     if (!apiKey) {
@@ -629,17 +641,76 @@ const App: React.FC = () => {
               </p>
             </div>
 
-            <button
-              onClick={resetQuiz}
-              className="w-full py-5 bg-white text-slate-950 font-black text-lg rounded-2xl transition-all transform active:scale-95 flex items-center justify-center gap-3"
-            >
-              RESTART EVALUATION
-              <RotateCcw size={24} />
-            </button>
+            <div className="flex flex-col gap-3 w-full">
+              <button
+                onClick={() => setShowGoalSelection(true)}
+                className="w-full py-5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-lg rounded-2xl transition-all transform active:scale-95 shadow-2xl shadow-cyan-500/20 flex items-center justify-center gap-3"
+              >
+                GOAL SETTING (목표 설정)
+                <Target size={24} />
+              </button>
+
+              <button
+                onClick={resetQuiz}
+                className="w-full py-4 bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 font-bold text-sm rounded-2xl transition-all flex items-center justify-center gap-2"
+              >
+                <RotateCcw size={16} />
+                RESTART DIAGNOSTIC
+              </button>
+            </div>
           </div>
 
           <div className="w-full mt-10">
             {renderChart()}
+          </div>
+        </div>
+      ) : showGoalSelection ? (
+        <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-500">
+          <div className="bg-slate-900/40 p-8 md:p-12 rounded-[2.5rem] border border-slate-800/50 backdrop-blur-3xl shadow-2xl max-w-4xl w-full space-y-8">
+            <div className="text-center space-y-2">
+              <h2 className="text-3xl font-black text-white italic">SELECT YOUR GOAL</h2>
+              <p className="text-slate-400">달성하고자 하는 목표 어휘 수준을 선택하세요.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {GOAL_OPTIONS.map((goal) => (
+                <button
+                  key={goal.rank}
+                  onClick={() => {
+                    setTargetGoal(goal.rank);
+                    setShowGoalSelection(false);
+                    // Start Learning Mode (For now, reset with current rank retained or specific logic)
+                    // Ideally we enter a "Learning Phase"
+                    setShowSettings(false);
+                    setIsFinished(false);
+                    setResponses([]);
+                    setHistory([]);
+                    // Start from current Diagnostic Rank, but aiming for Goal? 
+                    // For this implementation, let's just resume quizzing from current rank.
+                    loadNextQuestion(currentRank);
+                  }}
+                  className="relative group p-6 rounded-2xl bg-slate-950/50 border border-slate-800 hover:border-cyan-500/50 hover:bg-cyan-500/5 transition-all text-left space-y-3"
+                >
+                  <div className="flex justify-between items-start">
+                    <div className={`p-3 rounded-xl ${targetGoal === goal.rank ? 'bg-cyan-500 text-slate-900' : 'bg-slate-900 text-cyan-500 group-hover:bg-cyan-500 group-hover:text-slate-900'} transition-colors`}>
+                      <Trophy size={24} />
+                    </div>
+                    <span className="text-2xl font-black text-slate-700 group-hover:text-cyan-500/20 transition-colors">{goal.rank}</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-200 group-hover:text-white">{goal.label}</h3>
+                    <p className="text-xs text-slate-500 group-hover:text-slate-400">{goal.desc}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setShowGoalSelection(false)}
+              className="w-full py-4 text-slate-500 hover:text-white font-bold text-xs uppercase tracking-widest"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       ) : (
