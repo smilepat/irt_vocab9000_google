@@ -85,16 +85,16 @@ export async function generateVocabularyQuestion(
     4. CRITICAL RULE FOR OPTIONS: Ensure the vocabulary used in options is NOT more difficult than the target word. Options should be words with a rank equal to or lower than ${targetRank}.
     
     [Quiz Type Rules & Korean Stem Examples]
-    H: (영한번역 빈칸) Stem: "다음 한국어 문장에 들어갈 알맞은 영어 단어를 쓰세요." (English sentence with blank, plus Korean translation).
+    H: (영한번역 빈칸) Stem: "다음 한국어 문장에 들어갈 알맞은 영어 단어를 쓰세요." (Content must be: English sentence with a '______' blank, followed by its Korean translation).
     I: (객관식) Stem: "다음 단어 <u>${word || '[word]'}</u>의 뜻으로 가장 알맞은 것을 고르세요."
     J: (유의어 찾기) Stem: "다음 단어 <u>${word || '[word]'}</u>와 의미가 가장 비슷한 유의어를 고르세요."
     K: (반의어 찾기) Stem: "다음 단어 <u>${word || '[word]'}</u>와 의미가 반대인 반의어를 고르세요."
-    L: (품사 맞추기) Stem: "다음 문장에서 밑줄 친 <u>${word || '[word]'}</u>의 품사를 고르세요."
-    M: (영영 풀이) Stem: "제시된 영영 풀이를 읽고, 이에 해당하는 단어를 고르세요."
+    L: (품사 맞추기) Stem: "다음 문장에서 밑줄 친 <u>${word || '[word]'}</u>의 품사를 고르세요." (Provide the sentence, and MUST underline the target word in the sentence too).
+    M: (영영 풀이) Stem: "제시된 영영 풀이를 읽고, 이에 해당하는 단어를 고르세요." (Content must be the English definition of the target word).
     N: (문장 완성) Stem: "문맥상 빈칸에 들어갈 가장 적절한 단어를 고르세요." (Must provide an English sentence with a blank '______' that the target word fits into).
-    O: (철자 맞추기) Stem: "다음 뜻에 해당하는 단어의 올바른 철자를 쓰거나 고르세요."
-    P: (문맥 추론) Stem: "다음 지문을 읽고 밑줄 친 <u>${word || '[word]'}</u>의 의미를 문맥상 추론하여 고르세요."
-    Q: (단어 배열) Stem: "제시된 뜻에 맞게 알파벳(또는 단어 조각)을 올바른 순서로 배열하세요."
+    O: (철자 맞추기) Stem: "다음 뜻에 해당하는 단어의 올바른 철자를 쓰거나 고르세요." (Content must be the Korean definition of the target word).
+    P: (문맥 추론) Stem: "다음 지문을 읽고 밑줄 친 <u>${word || '[word]'}</u>의 의미를 문맥상 추론하여 고르세요." (Provide a short paragraph, and MUST underline the target word in the text).
+    Q: (단어 배열) Stem: "제시된 뜻에 맞게 알파벳(또는 단어 조각)을 올바른 순서로 배열하세요." (Content must be the Korean definition of the target word).
 
     General Formatting Rules:
     - Use <u> tags for the target word in questionText.
