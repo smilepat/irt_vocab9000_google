@@ -87,4 +87,7 @@
   body {
     @apply bg-background text-foreground;
   }
+  u {
+    @apply underline decoration-cyan-500 decoration-2 underline-offset-4 font-bold;
+  }
 }

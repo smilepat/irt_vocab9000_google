@@ -22,7 +22,8 @@ import {
   Play,
   AlertCircle,
   Search,
-  Check
+  Check,
+  Database
 } from 'lucide-react';
 
 const MAX_QUESTIONS = 20;
@@ -99,6 +100,35 @@ const App: React.FC = () => {
       setKeyTestResult({ success: false, message: "Error connecting" });
     } finally {
       setIsTestingKey(false);
+    }
+  };
+
+  const handleLoadDefaultDB = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+
+    try {
+      const mapping: ColumnMapping = {
+        word: "Word",
+        rank: "순번",
+        meaning: "Korean Definition",
+        explanation: "English Definition"
+      };
+
+      const result = await vocabService.loadFromUrl('/master_vocabulary_table9000.csv', mapping, 'EUC-KR');
+
+      if (result.error) {
+        alert("Failed to load DB: " + result.error);
+        setUseCustomData(false);
+      } else {
+        setCustomDataCount(result.count);
+        setUseCustomData(true);
+      }
+    } catch (e) {
+      console.error("DB Load Error", e);
+      alert("Error loading database");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -208,19 +238,38 @@ const App: React.FC = () => {
       const randomType = getRandomQuizType();
 
       let wordArgs: string | undefined = undefined;
+      let question: QuizQuestion | null = null;
+
       // Try to get word from custom data if enabled
       if (useCustomData && vocabService.hasData()) {
         const vocabItem = vocabService.getWordForRank(rank, history.map(h => h.word.toLowerCase()));
         if (vocabItem) {
           wordArgs = vocabItem.word;
-          // Adjust current question rank to match the found word to reflect reality? 
-          // Or keep requesting rank. The generation will use the word.
+
+          // Check if we have enough data to construct a question directly (bypassing AI)
+          if (vocabItem.questionText && vocabItem.correctAnswer) {
+            console.log("Using pre-loaded question for word:", vocabItem.word);
+            question = {
+              id: vocabItem.id,
+              type: (vocabItem.type as QuizType) || QuizType.I, // Default or map
+              rank: vocabItem.rank,
+              word: vocabItem.word,
+              questionText: vocabItem.questionText,
+              options: vocabItem.options || [vocabItem.correctAnswer, "Option B", "Option C", "Option D"], // Fallback if missing
+              correctAnswer: vocabItem.correctAnswer,
+              explanation: vocabItem.explanation || "제공된 해설이 없습니다."
+            };
+          }
         } else {
           console.log("No custom word found for rank " + rank + ". Fallback to AI selection.");
         }
       }
 
-      const question = await generateVocabularyQuestion(randomType, rank, wordArgs, model);
+      if (!question) {
+        // Fallback to AI generation if no pre-loaded question
+        question = await generateVocabularyQuestion(randomType, rank, wordArgs, model);
+      }
+
       setCurrentQuestion(question);
     } catch (error: any) {
       console.error("문항 생성 실패:", error);
@@ -481,32 +530,45 @@ const App: React.FC = () => {
               </div>
             </div>
 
+
+
             {/* Custom Data Toggle */}
-            <div className="flex items-center justify-between p-4 bg-slate-950/30 rounded-xl border border-slate-800/50">
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-10 h-6 rounded-full transition-colors relative cursor-pointer ${useCustomData ? 'bg-cyan-500' : 'bg-slate-700'}`}
-                  onClick={() => {
-                    if (vocabService.hasData()) {
-                      setUseCustomData(!useCustomData);
-                    } else {
-                      setShowUploadModal(true);
-                    }
-                  }}
+            <div className="flex flex-col gap-3 p-4 bg-slate-950/30 rounded-xl border border-slate-800/50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-10 h-6 rounded-full transition-colors relative cursor-pointer ${useCustomData ? 'bg-cyan-500' : 'bg-slate-700'}`}
+                    onClick={() => {
+                      if (vocabService.hasData()) {
+                        setUseCustomData(!useCustomData);
+                      } else {
+                        setShowUploadModal(true);
+                      }
+                    }}
+                  >
+                    <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${useCustomData ? 'translate-x-4' : ''}`}></div>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-300">Custom Data Mode</p>
+                    <p className="text-[10px] text-slate-500">{customDataCount > 0 ? `${customDataCount} words loaded` : 'No data loaded'}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowUploadModal(true)}
+                  className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                  title="Upload CSV"
                 >
-                  <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${useCustomData ? 'translate-x-4' : ''}`}></div>
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-slate-300">Custom Data Mode</p>
-                  <p className="text-[10px] text-slate-500">{customDataCount > 0 ? `${customDataCount} words loaded` : 'No data loaded'}</p>
-                </div>
+                  <Settings2 size={16} />
+                </button>
               </div>
+
               <button
-                onClick={() => setShowUploadModal(true)}
-                className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-                title="Upload CSV"
+                onClick={handleLoadDefaultDB}
+                disabled={isLoading}
+                className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold rounded-lg flex items-center justify-center gap-2 transition-all border border-slate-700 hover:border-slate-600"
               >
-                <Settings2 size={16} />
+                <Database size={14} className="text-cyan-500" />
+                USE VOCABULARY DB
               </button>
             </div>
 
@@ -771,7 +833,7 @@ const App: React.FC = () => {
                         dangerouslySetInnerHTML={{ __html: currentQuestion.questionText }}
                       />
 
-                      {currentQuestion.options ? (
+                      {currentQuestion.options && currentQuestion.options.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {currentQuestion.options.map((option, idx) => (
                             <button

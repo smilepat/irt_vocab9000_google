@@ -57,10 +57,28 @@ export const DataUploadModal: React.FC<DataUploadModalProps> = ({ isOpen, onClos
 
             const meaningCol = headers.find(h => /korean.*definition|한글.*뜻|meaning|def|equivalent|translation/i.test(h.replace(/\n/g, ' ')));
 
+            const questionCol = headers.find(h => /question|stem|문항|질문|sentence/i.test(h));
+            const answerCol = headers.find(h => /^answer$|correct|정답/i.test(h));
+            const explCol = headers.find(h => /explanation|comment|해설/i.test(h));
+
+            const optA = headers.find(h => /option.*a|choice.*a|보기.*1|a$/i.test(h));
+            const optB = headers.find(h => /option.*b|choice.*b|보기.*2|b$/i.test(h));
+            const optC = headers.find(h => /option.*c|choice.*c|보기.*3|c$/i.test(h));
+            const optD = headers.find(h => /option.*d|choice.*d|보기.*4|d$/i.test(h));
+            const typeCol = headers.find(h => /^type$|유형/i.test(h));
+
             setMapping({
                 word: wordCol || '',
                 rank: rankCol,
-                meaning: meaningCol
+                meaning: meaningCol,
+                questionText: questionCol,
+                answer: answerCol,
+                explanation: explCol,
+                optionA: optA,
+                optionB: optB,
+                optionC: optC,
+                optionD: optD,
+                type: typeCol
             });
             setError('');
         };
