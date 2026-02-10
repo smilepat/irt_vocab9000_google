@@ -55,7 +55,11 @@
       "WebFetch(domain:developers.notion.com)",
       "WebFetch(domain:mcp.harishgarg.com)",
       "Bash(claude mcp list:*)",
-      "Bash(claude mcp add:*)"
+      "Bash(claude mcp add:*)",
+      "Bash(npx:*)",
+      "mcp__notion__API-post-search",
+      "mcp__notion__API-post-page",
+      "Bash(python -m json.tool:*)"
     ],
     "additionalDirectories": [
       "E:\\vocabularylist\\07_Graph_DB_Project"
