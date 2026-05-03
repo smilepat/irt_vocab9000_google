@@ -1,3 +1,11 @@
+> 📦 **Archived 2026-05-03** — Tier 3-D vocab (C: IRT-CAT)
+> **시도 단계**: AI Studio + Gemini IRT vocab (2/10)
+> **재사용 가능 자산**: PROJECT_SEPARATION_PLAN.md, separate_projects.ps1, ontology-vocab-app/
+> **후속 코어**: [vocab-cat-test](https://github.com/smilepat/vocab-cat-test)
+> **현재 active vocab**: vocabulary-db (DB) / vocab-cat-test (진단) / vocab-learn-pat (학습) / vocab-graph-db (그래프)
+> **Unarchive**: `gh repo unarchive smilepat/<name>`
+
+---
 <div align="center">
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
